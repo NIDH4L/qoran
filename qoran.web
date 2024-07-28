@@ -1,0 +1,55 @@
+b#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_LINE_LENGTH 256
+
+typedef struct {
+    char ayah[MAX_LINE_LENGTH];
+    char tafseer[MAX_LINE_LENGTH];
+} AyahTafseer;
+
+void read_file(const char *filename, AyahTafseer *data, int *count) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Unable to open file");
+        exit(1);
+    }
+
+    char line[MAX_LINE_LENGTH];
+    *count = 0;
+    while (fgets(line, sizeof(line), file)) {
+        strcpy(data[*count].ayah, line);
+        (*count)++;
+    }
+
+    fclose(file);
+}
+
+void display_quran_with_tafseer(AyahTafseer *quran, AyahTafseer *tafseer, int count) {
+    for (int i = 0; i < count; i++) {
+        printf("آية: %s", quran[i].ayah);
+        printf("تفسير: %s\n", tafseer[i].tafseer);
+    }
+}
+
+int main() {
+    const char *quran_filename = "quran.txt";
+    const char *tafseer_filename = "tafseer.txt";
+
+    AyahTafseer quran[114];  // Assuming a maximum of 114 ayahs for simplicity
+    AyahTafseer tafseer[114];
+    int quran_count = 0, tafseer_count = 0;
+
+    read_file(quran_filename, quran, &quran_count);
+    read_file(tafseer_filename, tafseer, &tafseer_count);
+
+    if (quran_count != tafseer_count) {
+        fprintf(stderr, "Error: Mismatch between number of ayahs and tafseer entries.\n");
+        exit(1);
+    }
+
+    display_quran_with_tafseer(quran, tafseer, quran_count);
+
+    return 0;
+}
